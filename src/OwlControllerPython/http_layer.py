@@ -8,20 +8,20 @@ import requests
 import json
 
 
-def ping(target: str, port: int):
-    return send_cmd(target, port, 'ping')
+# def ping(target: str, port: int):
+#     return send_cmd(target, port, 'ping')
 
 
-def ping_volatile(target: str, port: int):
-    return send_cmd_volatile(target, port, 'ping')
+# def ping_volatile(target: str, port: int):
+#     return send_cmd_volatile(target, port, 'ping')
 
 
-def start(target: str, port: int):
-    return send_cmd(target, port, 'start')
+# def start(target: str, port: int):
+#     return send_cmd(target, port, 'start')
 
 
-def start_volatile(target: str, port: int):
-    return send_cmd_volatile(target, port, 'start')
+# def start_volatile(target: str, port: int):
+#     return send_cmd_volatile(target, port, 'start')
 
 
 def send_get_camera(target: str, port: int, camera_id: int | str):
@@ -36,47 +36,47 @@ def send_get_camera(target: str, port: int, camera_id: int | str):
         return None
 
 
-def send_cmd(target: str, port: int, s: str):
+def send_cmd(target: str, port: int, jsonS: str):
     try:
-        r = requests.get('http://' + target + str(port) + '/ECU_HTTP/sendStringCmd?c=' + s, timeout=3)
+        r = requests.post('http://' + target + str(port) + '/ECU_HTTP/cmd', data=jsonS, timeout=3)
         print(r.status_code)
+        if r.status_code != 200:
+            return {'ok': False, 'r': 'status_code'}
         print(r.text)
         j = json.loads(r.text)
         print(j)
         return (j['ok'], j['r'])
     except requests.exceptions.ReadTimeout as e:
-        print('send_cmd ', s, ' ', 'Error Command Timeout')
-        # return (False, 'Timeout')
+        print('send_cmd ', jsonS, ' ', 'Error Command Timeout')
         return {'ok': False, 'r': 'Timeout'}
     except requests.exceptions.ConnectionError as e:
-        print('ConnectionError Cannot Connect to PhantasyIsland, Max retries exceeded.', file=sys.stderr)
+        print('ConnectionError Cannot Connect to Airplane, Max retries exceeded.', file=sys.stderr)
         try:
             print('  ===>>>  ' + str(e.args[0].reason), file=sys.stderr)
         except:
             pass
-        # return (False, 'ConnectionError Cannot Connect to PhantasyIsland')
-        return {'ok': False, 'r': 'ConnectionError Cannot Connect to PhantasyIsland'}
+        return {'ok': False, 'r': 'ConnectionError Cannot Connect to Airplane'}
 
 
-def send_cmd_volatile(target: str, port: int, s: str):
+def send_cmd_volatile(target: str, port: int, jsonS: str):
     try:
-        r = requests.get('http://' + target + str(port) + '/ECU_HTTP/sendStringCmd?cc=' + s, timeout=3)
+        r = requests.post('http://' + target + str(port) + '/ECU_HTTP/cmd', data=jsonS, timeout=3)
         print(r.status_code)
+        if r.status_code != 200:
+            return {'ok': False, 'r': 'status_code'}
         print(r.text)
         j = json.loads(r.text)
         return (j['ok'], j['r'])
     except requests.exceptions.ReadTimeout as e:
-        print('send_cmd_volatile ', s, ' ', 'Error Command Timeout')
-        # return (False, 'Timeout')
+        print('send_cmd_volatile ', jsonS, ' ', 'Error Command Timeout')
         return {'ok': False, 'r': 'Timeout'}
     except requests.exceptions.ConnectionError as e:
-        print('ConnectionError Cannot Connect to PhantasyIsland, Max retries exceeded.', file=sys.stderr)
+        print('ConnectionError Cannot Connect to Airplane, Max retries exceeded.', file=sys.stderr)
         try:
             print('  ===>>>  ' + str(e.args[0].reason), file=sys.stderr)
         except:
             pass
-        # return (False, 'ConnectionError Cannot Connect to PhantasyIsland')
-        return {'ok': False, 'r': 'ConnectionError Cannot Connect to PhantasyIsland'}
+        return {'ok': False, 'r': 'ConnectionError Cannot Connect to Airplane'}
 
 
 # def get_all_airplane_status(target: str):

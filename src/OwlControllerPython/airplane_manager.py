@@ -3,7 +3,7 @@ from time import sleep
 
 from .airplane_core import make_AirplaneFlyStatus
 from .control_command import AirplaneController
-from .http_layer import get_all_airplane_status, process_airplane, ping, ping_volatile, start, start_volatile
+from .http_layer import process_airplane, ping, ping_volatile, start, start_volatile
 
 
 class AirplaneManager(object):

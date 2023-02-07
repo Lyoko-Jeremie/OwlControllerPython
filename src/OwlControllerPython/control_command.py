@@ -1,5 +1,15 @@
 from .airplane_core import AirplaneCore
 from .http_layer import send_cmd, send_cmd_volatile
+from enum import Enum
+import json
+
+
+class AirplaneModeEnum(Enum):
+    """
+    无人机airplane_mode函数设置飞行模式指令
+    """
+    CommonMode = 1
+    MapMode = 2
 
 
 class AirplaneController(AirplaneCore):
@@ -28,15 +38,15 @@ class AirplaneController(AirplaneCore):
         self.count = self.count + 2
         return self.count
 
-    def _prepare_command(self, command: str) -> str:
-        # return self.keyName + ' ' + str(self._next_count()) + ' ' + command
-        return command
+    def _prepare_command(self, json_obj: dict) -> str:
+        json_obj['packageId'] = self._next_count()
+        return json.dumps(json_obj)
 
-    def _send_cmd(self, command: str) -> str:
+    def _send_cmd(self, json_obj: dict) -> str:
         f = self._send_cmd_fn
-        return f(self._prepare_command(command), self.keyName)
+        return f(self.keyName, self.CommandServiceHttpPort, self._prepare_command(json_obj), )
 
-    def mode(self, mode: int):
+    def mode(self, mode: AirplaneModeEnum):
         """
         控制无人机飞行模式
         :param mode: 1,2,3,4
@@ -51,31 +61,46 @@ class AirplaneController(AirplaneCore):
         :param high: 起飞到指定高度
         :return:
         """
-        return self._send_cmd(f"takeoff {high}")
+        return self._send_cmd({
+            "cmdId": 11,
+            "distance": high,
+        })
 
     def land(self):
         """
         控制无人机降落
         """
-        return self._send_cmd(f"land")
+        return self._send_cmd({
+            "cmdId": 12,
+        })
 
     def emergency(self):
         """停桨"""
-        return self._send_cmd(f"emergency")
+        return self._send_cmd({
+            "cmdId": 10,
+        })
 
     def up(self, distance: int):
         """
         向上移动
         :param distance:移动距离（厘米）
         """
-        return self._send_cmd(f"up {distance}")
+        return self._send_cmd({
+            "cmdId": 13,
+            "forward": 1,
+            "distance": distance,
+        })
 
     def down(self, distance: int):
         """
         向下移动
         :param distance:移动距离（厘米）
         """
-        return self._send_cmd(f"down {distance}")
+        return self._send_cmd({
+            "cmdId": 13,
+            "forward": 2,
+            "distance": distance,
+        })
 
     def forward(self, distance: int):
         """
@@ -89,28 +114,44 @@ class AirplaneController(AirplaneCore):
         :return: The string &quot;ok&quot; if the command was successful
         :doc-author: Jeremie
         """
-        return self._send_cmd(f"forward {distance}")
+        return self._send_cmd({
+            "cmdId": 13,
+            "forward": 5,
+            "distance": distance,
+        })
 
     def back(self, distance: int):
         """
         向后移动
         :param distance:移动距离（厘米）
         """
-        return self._send_cmd(f"back {distance}")
+        return self._send_cmd({
+            "cmdId": 13,
+            "forward": 6,
+            "distance": distance,
+        })
 
     def left(self, distance: int):
         """
         向左移动
         :param distance:移动距离（厘米）
         """
-        return self._send_cmd(f"left {distance}")
+        return self._send_cmd({
+            "cmdId": 13,
+            "forward": 3,
+            "distance": distance,
+        })
 
     def right(self, distance: int):
         """
         向右移动
         :param distance:移动距离（厘米）
         """
-        return self._send_cmd(f"right {distance}")
+        return self._send_cmd({
+            "cmdId": 13,
+            "forward": 4,
+            "distance": distance,
+        })
 
     def goto(self, x: int, y: int, h: int):
         """
@@ -119,7 +160,12 @@ class AirplaneController(AirplaneCore):
         :param y: y轴方向位置（厘米）
         :param h: 高度（厘米）
         """
-        return self._send_cmd(f"goto {x} {y} {h}")
+        return self._send_cmd({
+            "cmdId": 16,
+            "x": x,
+            "y": y,
+            "h": h,
+        })
 
     def flip(self, direction: str):
         """
@@ -157,21 +203,33 @@ class AirplaneController(AirplaneCore):
         控制无人机旋转
         :param degree: 自转方向和角度（正数顺时针，负数逆时针，单位为度数）
         """
-        return self._send_cmd(f"rotate {degree}")
+        if degree > 0:
+            return self.cw(degree)
+        else:
+            return self.ccw(-degree)
+        pass
 
     def cw(self, degree: int):
         """
         控制无人机顺时针自转
         :param degree: 自转角度度数
         """
-        return self._send_cmd(f"cw {degree}")
+        return self._send_cmd({
+            "cmdId": 14,
+            "rotate": 1,
+            "rote": degree,
+        })
 
     def ccw(self, degree: int):
         """
         控制无人机逆时针自转
         :param degree: 自转角度度数
         """
-        return self._send_cmd(f"ccw {degree}")
+        return self._send_cmd({
+            "cmdId": 14,
+            "rotate": 2,
+            "rote": degree,
+        })
 
     def high(self, high: int):
         """
@@ -195,7 +253,13 @@ class AirplaneController(AirplaneCore):
         :param g: 灯光颜色G通道
         :param b: 灯光颜色B通道
         """
-        return self._send_cmd(f"light {r} {g} {b}")
+        return self._send_cmd({
+            "cmdId": 17,
+            "ledMode": 1,
+            "b": b,
+            "g": g,
+            "r": r,
+        })
 
     def bln(self, r: int, g: int, b: int):
         """
@@ -204,7 +268,13 @@ class AirplaneController(AirplaneCore):
         :param g: 灯光颜色G通道
         :param b: 灯光颜色B通道
         """
-        return self._send_cmd(f"bln {r} {g} {b}")
+        return self._send_cmd({
+            "cmdId": 17,
+            "ledMode": 2,
+            "b": b,
+            "g": g,
+            "r": r,
+        })
 
     def rainbow(self, r: int, g: int, b: int):
         """
@@ -213,9 +283,15 @@ class AirplaneController(AirplaneCore):
         :param g: 灯光颜色G通道
         :param b: 灯光颜色B通道
         """
-        return self._send_cmd(f"rainbow {r} {g} {b}")
+        return self._send_cmd({
+            "cmdId": 17,
+            "ledMode": 3,
+            "b": b,
+            "g": g,
+            "r": r,
+        })
 
-    def airplane_mode(self, mode: int):
+    def airplane_mode(self, mode: AirplaneModeEnum):
         """
         设置无人机飞行模式
         :param mode: 1,2,3,4
@@ -233,6 +309,8 @@ class AirplaneController(AirplaneCore):
         """
         控制无人机悬停
         """
-        return self._send_cmd(f"hover")
+        return self._send_cmd({
+            "cmdId": 15,
+        })
 
     pass
