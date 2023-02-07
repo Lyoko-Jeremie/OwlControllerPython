@@ -237,14 +237,20 @@ class AirplaneController(AirplaneCore):
         :param high: 飞行到指定高度
         :return:
         """
-        return self._send_cmd(f"high {high}")
+        return self._send_cmd({
+            "cmdId": 18,
+            "high": high,
+        })
 
     def speed(self, speed: int):
         """
         设置无人机飞行速度
         :param speed: 飞行速度（0-200厘米/秒）
         """
-        return self._send_cmd(f"setSpeed {speed}")
+        return self._send_cmd({
+            "cmdId": 19,
+            "speed": speed,
+        })
 
     def led(self, r: int, g: int, b: int):
         """
