@@ -172,7 +172,8 @@ class AirplaneController(AirplaneCore):
         flip函数用于控制无人机翻滚
         :param direction: 翻滚方向（f前 b后 l左 r右）
         """
-        return self._send_cmd(f"flip {direction} 1")
+        raise Exception("flip not impl now.")
+        # return self._send_cmd(f"flip {direction} 1")
 
     def flip_forward(self):
         """向前做翻转（翻跟头）动作
@@ -303,7 +304,10 @@ class AirplaneController(AirplaneCore):
         :param mode: 1,2,3,4
         :return:
         """
-        return self._send_cmd(f"airplane_mode {mode}")
+        return self._send_cmd({
+            "cmdId": 20,
+            "flyMode": mode,
+        })
 
     def stop(self):
         """
