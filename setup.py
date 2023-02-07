@@ -39,8 +39,8 @@ setuptools.setup(
 )
 
 # pip install mypy
-# mypy src/PhantasyIslandPythonRemoteControl/__init__.py
-# stubgen src/PhantasyIslandPythonRemoteControl/
+# mypy src/OwlControllerPython/__init__.py
+# stubgen src/OwlControllerPython/
 
 # <del> pip install wheel </del>
 # <del> python setup.py bdist_wheel </del>
