@@ -46,6 +46,11 @@ class AirplaneController(AirplaneCore):
         f = self._send_cmd_fn
         return f(self.keyName, self.CommandServiceHttpPort, self._prepare_command(json_obj), )
 
+    def __init__(self, keyName: str):
+        super().__init__()
+        self.keyName = keyName
+        pass
+
     def mode(self, mode: AirplaneModeEnum):
         """
         控制无人机飞行模式
@@ -322,5 +327,37 @@ class AirplaneController(AirplaneCore):
         return self._send_cmd({
             "cmdId": 15,
         })
+
+    pass
+
+
+class AirplaneControllerExtended(AirplaneController):
+    """
+    此类在AirplaneController的基础上添加了Owl特有的功能及函数
+    """
+
+    def ping(self):
+        """
+        ping
+        """
+        return self._send_cmd({
+            "cmdId": 0,
+        })
+
+    def shutdown(self):
+        pass
+
+    def __getattr__(self, item):
+        """
+        此函数为方法拦截器，
+        用来拦截对此对象的不存在的函数的获取和调用，
+        为了对其他库实现的适配而存在
+        from https://stackoverflow.com/questions/14612442/how-to-handle-return-both-properties-and-functions-missing-in-a-python-class-u
+        """
+        def func(*arg, **kwargs):
+            print("AirplaneControllerExtended __getattr__ placement")
+            return None
+
+        return func
 
     pass
