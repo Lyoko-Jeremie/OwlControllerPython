@@ -1,9 +1,7 @@
 from typing import Dict, Optional
 from time import sleep
 
-from .airplane_core import make_AirplaneFlyStatus
 from .control_command import AirplaneController, AirplaneControllerExtended
-from .http_layer import process_airplane
 
 
 class AirplaneManager(object):
@@ -74,6 +72,9 @@ class AirplaneManager(object):
         """
         更新当前管理器所管理的所有飞机的状态
         """
+        for k, a in self.airplanes_table.items():
+            a.flush()
+            pass
         return None
 
     def destroy(self):

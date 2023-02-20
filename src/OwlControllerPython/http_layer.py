@@ -79,62 +79,43 @@ def send_cmd_volatile(target: str, port: int, jsonS: str):
         return {'ok': False, 'r': 'ConnectionError Cannot Connect to Airplane'}
 
 
-# def get_all_airplane_status(target: str):
-#     # error = None
-#     # try:
-#     #     r = requests.get('http://' + target + '/ECU_HTTP/getAllAirplaneStatus', timeout=5)
-#     #     # print(r.status_code)
-#     #     j = json.loads(r.text)
-#     #     return j
-#     # except requests.exceptions.ConnectionError as e:
-#     #     print('ConnectionError Cannot Connect to PhantasyIsland, Max retries exceeded.', file=sys.stderr)
-#     #     try:
-#     #         print('  ===>>>  ' + str(e.args[0].reason), file=sys.stderr)
-#     #     except:
-#     #         print(e, file=sys.stderr)
-#     #     error = e
-#     #     pass
-#     # if error is not None:
-#     #     raise Exception('ConnectionError Cannot Connect to PhantasyIsland, Max retries exceeded.')
-#     pass
+def get_airplane_status(target: str, port: int):
+    error = None
+    try:
+        r = requests.get('http://' + target + str(port) + '/AirplaneState', timeout=5)
+        # print(r.status_code)
+        j = json.loads(r.text)
+        return process_airplane(j)
+    except requests.exceptions.ConnectionError as e:
+        print('ConnectionError Cannot Connect to airplane, Max retries exceeded.', file=sys.stderr)
+        try:
+            print('  ===>>>  ' + str(e.args[0].reason), file=sys.stderr)
+        except:
+            print(e, file=sys.stderr)
+        error = e
+        pass
+    if error is not None:
+        raise Exception('ConnectionError Cannot Connect to airplane, Max retries exceeded.')
+    pass
 
 
 def process_airplane(j: Dict[str, any]):
-    if j['ok'] is True:
-        airplanes = j['airplanes']
-        # print(airplanes)
-        airplaneStatus: Dict[str, Dict[str, any]] = {}
-        for air in airplanes:
-            # print(air)
-            status: Dict[str, any] = {}
-            # print(air['keyName'])
-            # print(air['typeName'])
-            # print(air['updateTimestamp'])
-            # print(air['status'])
-            status['keyName'] = air['keyName']
-            status['typeName'] = air['typeName']
-            status['updateTimestamp'] = air['updateTimestamp']
-            status['status'] = air['status']
-            # print(air['cameraDown'])
-            # print(air['cameraFront'])
-            camera_front = air['cameraFront']
-            camera_front_img_data_string = camera_front['imgDataString']
-            status['cameraFront'] = camera_front_img_data_string
-            camera_down = air['cameraDown']
-            camera_down_img_data_string = camera_down['imgDataString']
-            status['cameraDown'] = camera_down_img_data_string
-            # # print(cameraFront['imgDataString'])
-            # img = read_b64_img(cameraFront['imgDataString'])
-            # # print(img)
-            # if img is not None:
-            #     cv2.imshow(air['keyName'], img)
-            #     cv2.waitKey(1)
-            # else:
-            #     print(img)
-            # pass
-            airplaneStatus[status['keyName']] = status
-            pass
-        return airplaneStatus
+    if j['result'] is True:
+        air = j['state']
+        status: Dict[str, any] = {}
+        status['timestamp'] = air['timestamp']
+        status['stateFly'] = air['stateFly']
+        status['pitch'] = air['pitch']
+        status['roll'] = air['roll']
+        status['yaw'] = air['yaw']
+        status['vx'] = air['vx']
+        status['vy'] = air['vy']
+        status['vz'] = air['vz']
+        status['high'] = air['high']
+        status['nowTimestampSteady'] = j['nowTimestamp']
+        status['nowTimestampSystem'] = j['nowTimestampC']
+        print(status)
+        return status
     else:
         return None
     pass

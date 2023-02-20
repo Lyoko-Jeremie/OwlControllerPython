@@ -1,5 +1,5 @@
-from .airplane_core import AirplaneCore
-from .http_layer import send_cmd, send_cmd_volatile
+from .airplane_core import AirplaneCore, make_AirplaneFlyStatus
+from .http_layer import send_cmd, send_cmd_volatile, get_airplane_status
 from enum import Enum
 import json
 
@@ -347,6 +347,15 @@ class AirplaneControllerExtended(AirplaneController):
     def shutdown(self):
         pass
 
+    def flush(self):
+        try:
+            self.status = make_AirplaneFlyStatus(get_airplane_status(self.keyName, self.CommandServiceHttpPort))
+            pass
+        except:
+            # ignore
+            pass
+        pass
+
     def __getattr__(self, item):
         """
         此函数为方法拦截器，
@@ -354,6 +363,7 @@ class AirplaneControllerExtended(AirplaneController):
         为了对其他库实现的适配而存在
         from https://stackoverflow.com/questions/14612442/how-to-handle-return-both-properties-and-functions-missing-in-a-python-class-u
         """
+
         def func(*arg, **kwargs):
             print("AirplaneControllerExtended __getattr__ placement")
             return None

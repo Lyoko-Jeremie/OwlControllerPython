@@ -1,6 +1,8 @@
 import dataclasses
 from typing import Dict
 
+import datetime
+
 from .config import remote_CommandServiceHttpPort, remote_ImageServiceHttpPort
 from .http_layer import send_get_camera
 from .image_process import parse_img
@@ -22,18 +24,35 @@ class AirplaneFlyStatus(object):
     pass
 
 
+@dataclasses.dataclass()
+class AirplaneFlyStatusExtended(AirplaneFlyStatus):
+    vx: float
+    vy: float
+    vz: float
+    nowTimestampSteady: datetime.datetime
+    nowTimestampSystem: datetime.datetime
+    timestamp: datetime.datetime
+    pass
+
+
 def make_AirplaneFlyStatus(
         fly_status: Dict[str, any]
-):
-    return AirplaneFlyStatus(
-        landing=fly_status['landing'],
-        isStop=fly_status['isStop'],
-        x=fly_status['x'],
-        y=fly_status['y'],
-        h=fly_status['h'],
-        rX=fly_status['rX'],
-        rY=fly_status['rY'],
-        rZ=fly_status['rZ'],
+) -> AirplaneFlyStatusExtended:
+    return AirplaneFlyStatusExtended(
+        landing=fly_status['stateFly'],  # ?
+        isStop=fly_status['stateFly'],  # ?
+        x=0,  # ?
+        y=0,  # ?
+        h=fly_status['high'],
+        rX=fly_status['pitch'],  # ?
+        rY=fly_status['yaw'],
+        rZ=fly_status['roll'],  # ?
+        vx=fly_status['vx'],
+        vy=fly_status['vy'],
+        vz=fly_status['vz'],
+        nowTimestampSteady=datetime.datetime.utcfromtimestamp(fly_status['nowTimestampSteady'] / 1000),
+        nowTimestampSystem=datetime.datetime.utcfromtimestamp(fly_status['nowTimestampSystem'] / 1000),
+        timestamp=datetime.datetime.utcfromtimestamp(fly_status['timestamp'] / 1000),
     )
     pass
 
@@ -47,7 +66,7 @@ class AirplaneCore(object):
     keyName: str
     typeName: str
     updateTimestamp: int
-    status: AirplaneFlyStatus
+    status: AirplaneFlyStatusExtended
     cameraFront: str
     cameraDown: str
 
