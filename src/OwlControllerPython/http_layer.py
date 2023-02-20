@@ -3,6 +3,7 @@
 """
 from typing import Dict
 import sys
+import datetime
 
 import requests
 import json
@@ -29,11 +30,33 @@ def send_get_camera(target: str, port: int, camera_id: int | str):
         r = requests.get('http://' + target + str(port) + '/' + str(camera_id), timeout=3)
         if r.status_code != 200:
             return None
-        return r.content
+        r.headers["X-image-height"]
+        r.headers["X-image-width"]
+        r.headers["X-image-pixel-channel"]
+        r.headers["X-image-format"]
+        r.headers["X-SteadyClockTimestampMs"]
+        return r
     except requests.exceptions.ReadTimeout as e:
         return None
     except requests.exceptions.ConnectionError as e:
         return None
+
+
+def sync_time(target: str, port: int):
+    try:
+        r = requests.get(
+            'http://' + target + str(port) + '/time?setTimestamp=' + str(datetime.datetime.now().timestamp()),
+            timeout=1)
+        if r.status_code != 200:
+            return None
+        j = json.loads(r.text)
+        print(j)
+        return datetime.datetime.fromtimestamp(int(j["steadyClockTimestampMs"]))
+    except requests.exceptions.ReadTimeout as e:
+        return None
+    except requests.exceptions.ConnectionError as e:
+        return None
+    pass
 
 
 def send_cmd(target: str, port: int, jsonS: str):
@@ -82,7 +105,7 @@ def send_cmd_volatile(target: str, port: int, jsonS: str):
 def get_airplane_status(target: str, port: int):
     error = None
     try:
-        r = requests.get('http://' + target + str(port) + '/AirplaneState', timeout=5)
+        r = requests.get('http://' + target + str(port) + '/AirplaneState', timeout=1)
         # print(r.status_code)
         j = json.loads(r.text)
         return process_airplane(j)

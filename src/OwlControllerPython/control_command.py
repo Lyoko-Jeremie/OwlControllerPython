@@ -1,5 +1,5 @@
 from .airplane_core import AirplaneCore, make_AirplaneFlyStatus
-from .http_layer import send_cmd, send_cmd_volatile, get_airplane_status
+from .http_layer import send_cmd, send_cmd_volatile, get_airplane_status, sync_time
 from enum import Enum
 import json
 
@@ -350,6 +350,7 @@ class AirplaneControllerExtended(AirplaneController):
     def flush(self):
         try:
             self.status = make_AirplaneFlyStatus(get_airplane_status(self.keyName, self.CommandServiceHttpPort))
+            sync_time(self.keyName, self.ImageServiceHttpPort)
             pass
         except:
             # ignore
@@ -369,5 +370,13 @@ class AirplaneControllerExtended(AirplaneController):
             return None
 
         return func
+
+    def get_cameraFrontTimestamp(self):
+        return self.cameraFrontTimestamp
+        pass
+
+    def get_cameraDownTimestamp(self):
+        return self.cameraDownTimestamp
+        pass
 
     pass

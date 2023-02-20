@@ -3,6 +3,8 @@ from typing import Dict
 
 import datetime
 
+import numpy as np
+
 from .config import remote_CommandServiceHttpPort, remote_ImageServiceHttpPort
 from .http_layer import send_get_camera
 from .image_process import parse_img
@@ -50,9 +52,9 @@ def make_AirplaneFlyStatus(
         vx=fly_status['vx'],
         vy=fly_status['vy'],
         vz=fly_status['vz'],
-        nowTimestampSteady=datetime.datetime.utcfromtimestamp(fly_status['nowTimestampSteady'] / 1000),
-        nowTimestampSystem=datetime.datetime.utcfromtimestamp(fly_status['nowTimestampSystem'] / 1000),
-        timestamp=datetime.datetime.utcfromtimestamp(fly_status['timestamp'] / 1000),
+        nowTimestampSteady=datetime.datetime.fromtimestamp(fly_status['nowTimestampSteady'] / 1000),
+        nowTimestampSystem=datetime.datetime.fromtimestamp(fly_status['nowTimestampSystem'] / 1000),
+        timestamp=datetime.datetime.fromtimestamp(fly_status['timestamp'] / 1000),
     )
     pass
 
@@ -70,6 +72,11 @@ class AirplaneCore(object):
     cameraFront: str
     cameraDown: str
 
+    cameraFrontImg: np.ndarray
+    cameraFrontTimestamp: datetime.datetime
+    cameraDownImg: np.ndarray
+    cameraDownTimestamp: datetime.datetime
+
     CommandServiceHttpPort: int
     ImageServiceHttpPort: int
 
@@ -82,10 +89,12 @@ class AirplaneCore(object):
         获取前置摄像头图像
         :return:  cv::Mat
         """
-        r = send_get_camera(self.keyName, self.ImageServiceHttpPort, 'down')  # TODO
+        r = send_get_camera(self.keyName, self.ImageServiceHttpPort, 'down')
         if r is None:
             return
-        return parse_img(r)
+        self.cameraFrontImg = parse_img(r.content)
+        self.cameraFrontTimestamp = datetime.datetime.fromtimestamp(int(r.headers["X-SteadyClockTimestampMs"]))
+        return self.cameraFrontImg
         pass
 
     def get_camera_down_img(self):
@@ -93,10 +102,12 @@ class AirplaneCore(object):
         获取下置摄像头图像
         :return:  cv::Mat
         """
-        r = send_get_camera(self.keyName, self.ImageServiceHttpPort, 'front')  # TODO
+        r = send_get_camera(self.keyName, self.ImageServiceHttpPort, 'front')
         if r is None:
             return
-        return parse_img(r)
+        self.cameraDownImg = parse_img(r.content)
+        self.cameraDownTimestamp = datetime.datetime.fromtimestamp(int(r.headers["X-SteadyClockTimestampMs"]))
+        return parse_img(r.content)
         pass
 
     pass

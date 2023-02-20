@@ -7,7 +7,7 @@ import io
 
 
 # https://stackoverflow.com/questions/26509715/how-to-download-image-to-memory-using-python-requests
-def parse_img(requestContent):
+def parse_img(requestContent) -> np.ndarray:
     """
     从OwlAccessTerminal返回的无人机相机图像是一个标准html编码的png/jpg图像
     本函数使用opencv的cv::imdecode函数将其解析为cv::Mat图像数据
