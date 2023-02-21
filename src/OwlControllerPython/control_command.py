@@ -379,4 +379,12 @@ class AirplaneControllerExtended(AirplaneController):
         return self.cameraDownTimestamp
         pass
 
+    def calibrate(self):
+        """
+
+        """
+        return self._send_cmd({
+            "cmdId": 90,
+        })
+
     pass
