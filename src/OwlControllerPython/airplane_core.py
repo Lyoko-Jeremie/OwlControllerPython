@@ -43,8 +43,8 @@ def make_AirplaneFlyStatus(
     return AirplaneFlyStatusExtended(
         landing=fly_status['stateFly'],  # ?
         isStop=fly_status['stateFly'],  # ?
-        x=0,  # ?
-        y=0,  # ?
+        x=fly_status["tag_x"],
+        y=fly_status["tag_z"],
         h=fly_status['high'],
         rX=fly_status['pitch'],  # ?
         rY=fly_status['yaw'],

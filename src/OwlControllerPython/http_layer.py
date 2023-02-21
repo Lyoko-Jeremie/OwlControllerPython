@@ -125,6 +125,7 @@ def get_airplane_status(target: str, port: int):
 def process_airplane(j: Dict[str, any]):
     if j['result'] is True:
         air = j['state']
+        tag = j['tag']
         status: Dict[str, any] = {}
         status['timestamp'] = air['timestamp']
         status['stateFly'] = air['stateFly']
@@ -135,6 +136,10 @@ def process_airplane(j: Dict[str, any]):
         status['vy'] = air['vy']
         status['vz'] = air['vz']
         status['high'] = air['high']
+        status['tag_ok'] = tag['ok']
+        status['tag_x'] = tag['x']
+        status['tag_y'] = tag['y']
+        status['tag_z'] = tag['z']
         status['nowTimestampSteady'] = j['nowTimestamp']
         status['nowTimestampSystem'] = j['nowTimestampC']
         print(status)
