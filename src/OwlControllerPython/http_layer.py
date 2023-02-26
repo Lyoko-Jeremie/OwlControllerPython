@@ -68,7 +68,7 @@ def send_cmd(target: str, port: int, jsonS: str):
         print(r.text)
         j = json.loads(r.text)
         print(j)
-        return (j['ok'], j['r'])
+        return (j['result'])
     except requests.exceptions.ReadTimeout as e:
         print('send_cmd ', jsonS, ' ', 'Error Command Timeout')
         return {'ok': False, 'r': 'Timeout'}
@@ -89,7 +89,7 @@ def send_cmd_volatile(target: str, port: int, jsonS: str):
             return {'ok': False, 'r': 'status_code'}
         print(r.text)
         j = json.loads(r.text)
-        return (j['ok'], j['r'])
+        return (j['result'])
     except requests.exceptions.ReadTimeout as e:
         print('send_cmd_volatile ', jsonS, ' ', 'Error Command Timeout')
         return {'ok': False, 'r': 'Timeout'}
