@@ -27,7 +27,7 @@ import json
 
 def send_get_camera(target: str, port: int, camera_id: int | str):
     try:
-        r = requests.get('http://' + target + str(port) + '/' + str(camera_id), timeout=3)
+        r = requests.get('http://' + target + ':' + str(port) + '/' + str(camera_id), timeout=3)
         if r.status_code != 200:
             return None
         r.headers["X-image-height"]
@@ -45,7 +45,7 @@ def send_get_camera(target: str, port: int, camera_id: int | str):
 def sync_time(target: str, port: int):
     try:
         r = requests.get(
-            'http://' + target + str(port) + '/time?setTimestamp=' + str(datetime.datetime.now().timestamp()),
+            'http://' + target + ':' + str(port) + '/time?setTimestamp=' + str(datetime.datetime.now().timestamp()),
             timeout=1)
         if r.status_code != 200:
             return None
@@ -61,7 +61,7 @@ def sync_time(target: str, port: int):
 
 def send_cmd(target: str, port: int, jsonS: str):
     try:
-        r = requests.post('http://' + target + str(port) + '/ECU_HTTP/cmd', data=jsonS, timeout=3)
+        r = requests.post('http://' + target + ':' + str(port) + '/cmd', data=jsonS, timeout=3)
         print(r.status_code)
         if r.status_code != 200:
             return {'ok': False, 'r': 'status_code'}
@@ -83,7 +83,7 @@ def send_cmd(target: str, port: int, jsonS: str):
 
 def send_cmd_volatile(target: str, port: int, jsonS: str):
     try:
-        r = requests.post('http://' + target + str(port) + '/ECU_HTTP/cmd', data=jsonS, timeout=3)
+        r = requests.post('http://' + target + ':' + str(port) + '/cmd', data=jsonS, timeout=3)
         print(r.status_code)
         if r.status_code != 200:
             return {'ok': False, 'r': 'status_code'}
@@ -105,7 +105,7 @@ def send_cmd_volatile(target: str, port: int, jsonS: str):
 def get_airplane_status(target: str, port: int):
     error = None
     try:
-        r = requests.get('http://' + target + str(port) + '/AirplaneState', timeout=1)
+        r = requests.get('http://' + target + ':' + str(port) + '/AirplaneState', timeout=1)
         # print(r.status_code)
         j = json.loads(r.text)
         return process_airplane(j)
