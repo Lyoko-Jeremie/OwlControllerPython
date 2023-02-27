@@ -82,7 +82,7 @@ class AirplaneController(AirplaneCore):
     def emergency(self):
         """停桨"""
         return self._send_cmd({
-            "cmdId": 10,
+            "cmdId": 120,
         })
 
     def up(self, distance: int):
