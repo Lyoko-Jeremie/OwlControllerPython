@@ -49,7 +49,7 @@ def send_get_camera(target: str, port: int, camera_id: str):
 def sync_time(target: str, port: int):
     try:
         s = requests.Session()
-        s.mount('http://', HTTPAdapter(max_retries=http_retry_times, pool_block=True))
+        s.mount('http://', HTTPAdapter(max_retries=http_retry_times))
         r = s.get(
             'http://' + target + ':' + str(port) + '/time?setTimestamp=' + str(datetime.datetime.now().timestamp()),
             timeout=1)
@@ -59,8 +59,10 @@ def sync_time(target: str, port: int):
         print(j)
         return datetime.datetime.fromtimestamp(int(j["steadyClockTimestampMs"]))
     except requests.exceptions.ReadTimeout as e:
+        # print("sync_time except requests.exceptions.ReadTimeout")
         return None
     except requests.exceptions.ConnectionError as e:
+        # print("sync_time except requests.exceptions.ConnectionError")
         return None
     pass
 
