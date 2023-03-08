@@ -49,7 +49,7 @@ def send_get_camera(target: str, port: int, camera_id: str):
 def sync_time(target: str, port: int):
     try:
         s = requests.Session()
-        s.mount('http://', HTTPAdapter(max_retries=http_retry_times))
+        s.mount('http://', HTTPAdapter(max_retries=http_retry_times, pool_block=True))
         r = s.get(
             'http://' + target + ':' + str(port) + '/time?setTimestamp=' + str(datetime.datetime.now().timestamp()),
             timeout=1)
@@ -67,6 +67,7 @@ def sync_time(target: str, port: int):
 
 def send_cmd(target: str, port: int, jsonS: str):
     try:
+        # https://stackoverflow.com/questions/15431044/can-i-set-max-retries-for-requests-request
         s = requests.Session()
         s.mount('http://', HTTPAdapter(max_retries=http_retry_times))
         r = s.post('http://' + target + ':' + str(port) + '/cmd', data=jsonS, timeout=http_timeout_cmd)
