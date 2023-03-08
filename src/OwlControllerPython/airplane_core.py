@@ -89,7 +89,7 @@ class AirplaneCore(object):
         获取前置摄像头图像
         :return:  cv::Mat
         """
-        r = send_get_camera(self.keyName, self.ImageServiceHttpPort, 'down')
+        r = send_get_camera(self.keyName, self.ImageServiceHttpPort, 'front')
         if r is None:
             return
         self.cameraFrontImg = parse_img(r.content)
@@ -102,7 +102,7 @@ class AirplaneCore(object):
         获取下置摄像头图像
         :return:  cv::Mat
         """
-        r = send_get_camera(self.keyName, self.ImageServiceHttpPort, 'front')
+        r = send_get_camera(self.keyName, self.ImageServiceHttpPort, 'down')
         if r is None:
             return
         self.cameraDownImg = parse_img(r.content)
