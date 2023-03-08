@@ -26,6 +26,7 @@ class AirplaneManager(object):
         """
         这个函数为了完全适配PhantasyIslandPythonRemoteControl的API而存在
         """
+        self.flush()
         return {'ok': True, 'r': ''}
 
     def start_volatile(self):
@@ -46,19 +47,19 @@ class AirplaneManager(object):
         return self.airplanes_table.get(keyName)
         pass
 
-    def get_airplane_extended(self, id: str) -> Optional[AirplaneControllerExtended]:
+    def get_airplane_extended(self, keyName: str) -> Optional[AirplaneControllerExtended]:
         """
         获取扩展飞机对象
         这个函数获取的API在完全适配PhantasyIslandPythonRemoteControl的API基础上，添加了FH0A无人机特有功能API
         :param keyName: 无人机的 keyName
         :return: AirplaneController
         """
-        a = self.airplanes_table.get(id)
+        a = self.airplanes_table.get(keyName)
         if a is not None:
             return a
         else:
-            self.airplanes_table[id] = AirplaneControllerExtended(id)
-            return self.airplanes_table.get(id)
+            self.airplanes_table[keyName] = AirplaneControllerExtended(keyName)
+            return self.airplanes_table.get(keyName)
         pass
 
     def sleep(self, time):
