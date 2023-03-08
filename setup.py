@@ -35,7 +35,7 @@ setuptools.setup(
     },
     author='Jeremie',
     author_email='lucheng989898@protonmail.com',
-    python_requires='>=3.8',
+    python_requires='>=3.11',
 )
 
 # pip install mypy
