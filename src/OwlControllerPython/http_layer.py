@@ -6,7 +6,9 @@ import sys
 import datetime
 
 import requests
+from requests.adapters import HTTPAdapter
 import json
+from .config import http_retry_times, http_timeout_cmd
 
 
 # def ping(target: str, port: int):
@@ -25,9 +27,11 @@ import json
 #     return send_cmd_volatile(target, port, 'start')
 
 
-def send_get_camera(target: str, port: int, camera_id: int | str):
+def send_get_camera(target: str, port: int, camera_id: str):
     try:
-        r = requests.get('http://' + target + ':' + str(port) + '/' + str(camera_id), timeout=3)
+        s = requests.Session()
+        s.mount('http://', HTTPAdapter(max_retries=http_retry_times))
+        r = s.get('http://' + target + ':' + str(port) + '/' + str(camera_id), timeout=3)
         if r.status_code != 200:
             return None
         r.headers["X-image-height"]
@@ -44,7 +48,9 @@ def send_get_camera(target: str, port: int, camera_id: int | str):
 
 def sync_time(target: str, port: int):
     try:
-        r = requests.get(
+        s = requests.Session()
+        s.mount('http://', HTTPAdapter(max_retries=http_retry_times))
+        r = s.get(
             'http://' + target + ':' + str(port) + '/time?setTimestamp=' + str(datetime.datetime.now().timestamp()),
             timeout=1)
         if r.status_code != 200:
@@ -61,7 +67,9 @@ def sync_time(target: str, port: int):
 
 def send_cmd(target: str, port: int, jsonS: str):
     try:
-        r = requests.post('http://' + target + ':' + str(port) + '/cmd', data=jsonS, timeout=3)
+        s = requests.Session()
+        s.mount('http://', HTTPAdapter(max_retries=http_retry_times))
+        r = s.post('http://' + target + ':' + str(port) + '/cmd', data=jsonS, timeout=http_timeout_cmd)
         print(r.status_code)
         if r.status_code != 200:
             return {'ok': False, 'r': 'status_code'}
@@ -83,7 +91,9 @@ def send_cmd(target: str, port: int, jsonS: str):
 
 def send_cmd_volatile(target: str, port: int, jsonS: str):
     try:
-        r = requests.post('http://' + target + ':' + str(port) + '/cmd', data=jsonS, timeout=3)
+        s = requests.Session()
+        s.mount('http://', HTTPAdapter(max_retries=http_retry_times))
+        r = s.post('http://' + target + ':' + str(port) + '/cmd', data=jsonS, timeout=http_timeout_cmd)
         print(r.status_code)
         if r.status_code != 200:
             return {'ok': False, 'r': 'status_code'}
