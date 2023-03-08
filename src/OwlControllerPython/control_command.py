@@ -349,8 +349,8 @@ class AirplaneControllerExtended(AirplaneController):
 
     def flush(self):
         try:
-            self.status = make_AirplaneFlyStatus(get_airplane_status(self.keyName, self.CommandServiceHttpPort))
             sync_time(self.keyName, self.ImageServiceHttpPort)
+            self.status = make_AirplaneFlyStatus(get_airplane_status(self.keyName, self.CommandServiceHttpPort))
             pass
         except:
             # ignore
