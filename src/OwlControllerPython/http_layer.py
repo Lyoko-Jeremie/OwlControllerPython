@@ -6,9 +6,9 @@ import sys
 import datetime
 
 import requests
-from requests.adapters import HTTPAdapter
+from requests.adapters import HTTPAdapter, Retry
 import json
-from .config import http_retry_times, http_timeout_cmd
+from .config import http_retry_times, http_timeout_cmd_connect, http_timeout_cmd_read
 
 
 # def ping(target: str, port: int):
@@ -31,7 +31,7 @@ def send_get_camera(target: str, port: int, camera_id: str):
     try:
         s = requests.Session()
         s.mount('http://', HTTPAdapter(max_retries=http_retry_times))
-        r = s.get('http://' + target + ':' + str(port) + '/' + str(camera_id), timeout=3)
+        r = s.get('http://' + target + ':' + str(port) + '/' + str(camera_id), timeout=(3, 2))
         if r.status_code != 200:
             return None
         r.headers["X-image-height"]
@@ -61,6 +61,9 @@ def sync_time(target: str, port: int):
     except requests.exceptions.ReadTimeout as e:
         # print("sync_time except requests.exceptions.ReadTimeout")
         return None
+    except requests.exceptions.ConnectTimeout as e:
+        # print("sync_time except requests.exceptions.ConnectTimeout")
+        return None
     except requests.exceptions.ConnectionError as e:
         # print("sync_time except requests.exceptions.ConnectionError")
         return None
@@ -72,7 +75,8 @@ def send_cmd(target: str, port: int, jsonS: str):
         # https://stackoverflow.com/questions/15431044/can-i-set-max-retries-for-requests-request
         s = requests.Session()
         s.mount('http://', HTTPAdapter(max_retries=http_retry_times))
-        r = s.post('http://' + target + ':' + str(port) + '/cmd', data=jsonS, timeout=http_timeout_cmd)
+        r = s.post('http://' + target + ':' + str(port) + '/cmd', data=jsonS,
+                   timeout=(http_timeout_cmd_connect, http_timeout_cmd_read))
         print(r.status_code)
         if r.status_code != 200:
             return {'ok': False, 'r': 'status_code'}
@@ -81,10 +85,13 @@ def send_cmd(target: str, port: int, jsonS: str):
         print(j)
         return (j['result'])
     except requests.exceptions.ReadTimeout as e:
-        print('send_cmd ', jsonS, ' ', 'Error Command Timeout')
+        print('send_cmd ', jsonS, ' ', 'Error Command ReadTimeout')
+        return {'ok': False, 'r': 'Timeout'}
+    except requests.exceptions.ConnectTimeout as e:
+        print('send_cmd ', jsonS, ' ', 'Error Command ConnectTimeout')
         return {'ok': False, 'r': 'Timeout'}
     except requests.exceptions.ConnectionError as e:
-        print('ConnectionError Cannot Connect to Airplane, Max retries exceeded.', file=sys.stderr)
+        print('ConnectionError Cannot Connect to Airplane, Max retries exceeded.', jsonS, file=sys.stderr)
         try:
             print('  ===>>>  ' + str(e.args[0].reason), file=sys.stderr)
         except:
@@ -96,7 +103,8 @@ def send_cmd_volatile(target: str, port: int, jsonS: str):
     try:
         s = requests.Session()
         s.mount('http://', HTTPAdapter(max_retries=http_retry_times))
-        r = s.post('http://' + target + ':' + str(port) + '/cmd', data=jsonS, timeout=http_timeout_cmd)
+        r = s.post('http://' + target + ':' + str(port) + '/cmd', data=jsonS,
+                   timeout=(http_timeout_cmd_connect, http_timeout_cmd_read))
         print(r.status_code)
         if r.status_code != 200:
             return {'ok': False, 'r': 'status_code'}
@@ -104,10 +112,13 @@ def send_cmd_volatile(target: str, port: int, jsonS: str):
         j = json.loads(r.text)
         return (j['result'])
     except requests.exceptions.ReadTimeout as e:
-        print('send_cmd_volatile ', jsonS, ' ', 'Error Command Timeout')
+        print('send_cmd_volatile ', jsonS, ' ', 'Error Command ReadTimeout')
+        return {'ok': False, 'r': 'Timeout'}
+    except requests.exceptions.ConnectTimeout as e:
+        print('send_cmd_volatile ', jsonS, ' ', 'Error Command ConnectTimeout')
         return {'ok': False, 'r': 'Timeout'}
     except requests.exceptions.ConnectionError as e:
-        print('ConnectionError Cannot Connect to Airplane, Max retries exceeded.', file=sys.stderr)
+        print('ConnectionError Cannot Connect to Airplane, Max retries exceeded.', jsonS, file=sys.stderr)
         try:
             print('  ===>>>  ' + str(e.args[0].reason), file=sys.stderr)
         except:
