@@ -35,7 +35,7 @@ class AirplaneManager(object):
         """
         return {'ok': True, 'r': ''}
 
-    def get_airplane(self, keyName: str) -> Optional[AirplaneController]:
+    def get_airplane(self, keyName: str) -> Optional[AirplaneControllerExtended]:
         """
         获取指定无人机
         这个函数获取的API完全适配PhantasyIslandPythonRemoteControl的API
