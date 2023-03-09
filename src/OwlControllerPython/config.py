@@ -5,6 +5,6 @@
 remote_CommandServiceHttpPort = 23338
 remote_ImageServiceHttpPort = 23331
 
-http_retry_times = 6
-http_timeout_cmd_connect = 3
-http_timeout_cmd_read = 8
+http_retry_times = 10
+http_timeout_cmd_connect = 1
+http_timeout_cmd_read = 10
