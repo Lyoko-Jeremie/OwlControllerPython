@@ -49,23 +49,23 @@ def send_get_camera(target: str, port: int, camera_id: str):
 def sync_time(target: str, port: int):
     try:
         s = requests.Session()
-        s.mount('http://', HTTPAdapter(max_retries=http_retry_times))
+        s.mount('http://', HTTPAdapter(max_retries=2))
         r = s.get(
             'http://' + target + ':' + str(port) + '/time?setTimestamp=' + str(datetime.datetime.now().timestamp()),
-            timeout=1)
+            timeout=(10, 1))
         if r.status_code != 200:
             return None
         j = json.loads(r.text)
         print(j)
         return datetime.datetime.fromtimestamp(int(j["steadyClockTimestampMs"]))
     except requests.exceptions.ReadTimeout as e:
-        # print("sync_time except requests.exceptions.ReadTimeout")
+        print("sync_time except requests.exceptions.ReadTimeout", file=sys.stderr)
         return None
     except requests.exceptions.ConnectTimeout as e:
-        # print("sync_time except requests.exceptions.ConnectTimeout")
+        print("sync_time except requests.exceptions.ConnectTimeout", file=sys.stderr)
         return None
     except requests.exceptions.ConnectionError as e:
-        # print("sync_time except requests.exceptions.ConnectionError")
+        print("sync_time except requests.exceptions.ConnectionError", file=sys.stderr)
         return None
     pass
 
