@@ -1,10 +1,10 @@
 from .airplane_core import AirplaneCore, make_AirplaneFlyStatus
 from .http_layer import send_cmd, send_cmd_volatile, get_airplane_status, sync_time
-from enum import Enum
+from enum import IntEnum
 import json
 
 
-class AirplaneModeEnum(Enum):
+class AirplaneModeEnum(IntEnum):
     """
     无人机airplane_mode函数设置飞行模式指令
     """
