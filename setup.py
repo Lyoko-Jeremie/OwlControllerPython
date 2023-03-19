@@ -11,7 +11,7 @@ if os.path.isfile(requirementPath):
 
 setuptools.setup(
     name="OwlControllerPython",
-    version="0.0.3",
+    version="0.0.5",
     description="Python Remote Control Lib for Owl",
     # https://stackoverflow.com/questions/51286928/what-is-where-argument-for-in-setuptools-find-packages
     # DO NOT pack mock/test (like js) into output

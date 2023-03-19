@@ -3,6 +3,7 @@ import src.OwlControllerPython as owl
 m: owl.AirplaneManager = owl.get_airplane_manager()
 m.flush()
 a: owl.AirplaneController = m.get_airplane("127.0.0.1")
+a.mode(mode=owl.AirplaneModeEnum.MapMode)
 m.start()
 a.use_fast_mode()
 m.sleep(3)
