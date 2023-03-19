@@ -311,7 +311,7 @@ class AirplaneController(AirplaneCore):
         """
         return self._send_cmd({
             "cmdId": 20,
-            "flyMode": mode,
+            "flyMode": mode.value,
         })
 
     def stop(self):
