@@ -355,7 +355,10 @@ class AirplaneControllerExtended(AirplaneController):
     def _resend_thread_do(self):
         while self._resend_shutdown is True:
             sleep(0.3)
-            self._send_cmd_fn(self.keyName, self.CommandServiceHttpPort, self._resend_last_cmd_json, )
+            self._send_cmd_fn(
+                self.keyName, self.CommandServiceHttpPort, self._resend_last_cmd_json,
+                http_retry_times_=0,
+                http_timeout_cmd_connect_=(0, 1), )
         pass
 
     def _send_cmd(self, json_obj: dict) -> str:

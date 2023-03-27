@@ -70,13 +70,18 @@ def sync_time(target: str, port: int):
     pass
 
 
-def send_cmd(target: str, port: int, jsonS: str):
+def send_cmd(target: str, port: int, jsonS: str,
+             http_retry_times_=None,
+             http_timeout_cmd_connect_=(None, None), ):
     try:
         # https://stackoverflow.com/questions/15431044/can-i-set-max-retries-for-requests-request
         s = requests.Session()
-        s.mount('http://', HTTPAdapter(max_retries=http_retry_times))
+        s.mount('http://',
+                HTTPAdapter(max_retries=http_retry_times if http_retry_times_ is not None else http_retry_times_))
         r = s.post('http://' + target + ':' + str(port) + '/cmd', data=jsonS,
-                   timeout=(http_timeout_cmd_connect, http_timeout_cmd_read))
+                   timeout=(http_timeout_cmd_connect if http_retry_times_ is not None else http_timeout_cmd_connect_[0],
+                            http_timeout_cmd_read if http_retry_times_ is not None else http_timeout_cmd_connect_[1],
+                            ))
         print(r.status_code)
         if r.status_code != 200:
             return {'ok': False, 'r': 'status_code'}
@@ -99,12 +104,17 @@ def send_cmd(target: str, port: int, jsonS: str):
         return {'ok': False, 'r': 'ConnectionError Cannot Connect to Airplane'}
 
 
-def send_cmd_volatile(target: str, port: int, jsonS: str):
+def send_cmd_volatile(target: str, port: int, jsonS: str,
+                      http_retry_times_=None,
+                      http_timeout_cmd_connect_=(None, None), ):
     try:
         s = requests.Session()
-        s.mount('http://', HTTPAdapter(max_retries=http_retry_times))
+        s.mount('http://',
+                HTTPAdapter(max_retries=http_retry_times if http_retry_times_ is not None else http_retry_times_))
         r = s.post('http://' + target + ':' + str(port) + '/cmd', data=jsonS,
-                   timeout=(http_timeout_cmd_connect, http_timeout_cmd_read))
+                   timeout=(http_timeout_cmd_connect if http_retry_times_ is not None else http_timeout_cmd_connect_[0],
+                            http_timeout_cmd_read if http_retry_times_ is not None else http_timeout_cmd_connect_[1],
+                            ))
         print(r.status_code)
         if r.status_code != 200:
             return {'ok': False, 'r': 'status_code'}
