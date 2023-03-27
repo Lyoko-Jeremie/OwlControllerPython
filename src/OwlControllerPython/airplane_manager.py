@@ -1,7 +1,8 @@
 from typing import Dict, Optional
 from time import sleep
+from random import randrange
 
-from .control_command import AirplaneController, AirplaneControllerExtended
+from .control_command import AirplaneControllerExtended
 
 
 class AirplaneManager(object):
@@ -9,6 +10,12 @@ class AirplaneManager(object):
     管理并更新所有飞机状态的管理器
     """
     airplanes_table: Dict[str, AirplaneControllerExtended] = {}
+
+    _client_id: int
+
+    def __init__(self):
+        self._client_id = randrange(110, 6553600)
+        pass
 
     def ping(self):
         """
@@ -42,7 +49,7 @@ class AirplaneManager(object):
         """
         a: Optional[AirplaneControllerExtended] = self.airplanes_table.get(keyName)
         if a is None:
-            self.airplanes_table[keyName] = AirplaneControllerExtended(keyName)
+            self.airplanes_table[keyName] = AirplaneControllerExtended(keyName, self._client_id)
             pass
         return self.airplanes_table.get(keyName)
         pass
@@ -58,14 +65,11 @@ class AirplaneManager(object):
         if a is not None:
             return a
         else:
-            self.airplanes_table[keyName] = AirplaneControllerExtended(keyName)
+            self.airplanes_table[keyName] = AirplaneControllerExtended(keyName, self._client_id)
             return self.airplanes_table.get(keyName)
         pass
 
     def sleep(self, time):
-        """
-        这个函数为了完全适配PhantasyIslandPythonRemoteControl的API而存在
-        """
         sleep(time)
         pass
 

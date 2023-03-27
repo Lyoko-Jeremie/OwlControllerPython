@@ -2,6 +2,8 @@ from .airplane_core import AirplaneCore, make_AirplaneFlyStatus
 from .http_layer import send_cmd, send_cmd_volatile, get_airplane_status, sync_time
 from enum import IntEnum
 import json
+import threading
+from time import sleep
 
 
 class AirplaneModeEnum(IntEnum):
@@ -20,6 +22,8 @@ class AirplaneController(AirplaneCore):
     count: int = 1
 
     _send_cmd_fn = staticmethod(send_cmd)
+
+    _can_use_resend_mode = False
 
     def use_fast_mode(self, enable=True):
         """
@@ -336,15 +340,45 @@ class AirplaneControllerExtended(AirplaneController):
     此类在AirplaneController的基础上添加了Owl特有的功能及函数
     """
 
+    _resend_thread: threading.Thread = None
+    _resend_shutdown = False
+    _resend_last_cmd_json = None
+    _client_id: int
+
+    def __init__(self, keyName: str, client_id: int):
+        super().__init__(keyName)
+        self._client_id = client_id
+        _resend_thread = threading.Thread(target=self._resend_thread_do, args=(self,))
+        _resend_thread.start()
+        pass
+
+    def _resend_thread_do(self):
+        while self._resend_shutdown is True:
+            sleep(0.3)
+            self._send_cmd_fn(self.keyName, self.CommandServiceHttpPort, self._resend_last_cmd_json, )
+        pass
+
+    def _send_cmd(self, json_obj: dict) -> str:
+        f = self._send_cmd_fn
+        p = self._prepare_command(self.json_obj)
+        f = self._send_cmd_fn
+        if json_obj["cmdId"] != 0:
+            self._resend_last_cmd_json = p
+            return f(self.keyName, self.CommandServiceHttpPort, p, )
+        return f(self.keyName, self.CommandServiceHttpPort, p, )
+
     def ping(self):
         """
         ping
         """
-        return self._send_cmd({
+        (r, j) = self._send_cmd({
             "cmdId": 0,
         })
+        self._can_use_resend_mode = j["Version"] is not None
+        return r
 
     def shutdown(self):
+        self._resend_shutdown = True
         pass
 
     def flush(self):
@@ -355,6 +389,15 @@ class AirplaneControllerExtended(AirplaneController):
         except:
             # ignore
             pass
+        pass
+
+    def takeoff(self, high: int):
+        self.ping()
+        super().takeoff(high)
+        pass
+
+    def sleep(self, time):
+        sleep(time)
         pass
 
     def __getattr__(self, item):
